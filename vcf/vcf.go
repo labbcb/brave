@@ -43,7 +43,7 @@ func IterateOver(r io.Reader, datasetID, assemblyID string, importFunc func(v *v
 			DatasetID:       datasetID,
 			TotalSamples:    int32(totalSamples),
 			AssemblyID:      assemblyID,
-			SnpIds:          strings.Split(v.Id_, ","),
+			SnpIds:          strings.Split(v.Id_, ";"),
 			ReferenceName:   strings.TrimPrefix(v.Chromosome, "chr"),
 			Start:           int32(v.Pos),
 			ReferenceBases:  v.Reference,
