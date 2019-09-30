@@ -1,0 +1,172 @@
+---
+swagger: "2.0"
+info:
+  description: BraVE is a web application for exploration of the [Brazilian Initiative on Precision Medicine (BIPMed)](https://bipmed.org) genomic datasets.
+  version: 1.1.0
+  title: BraVE - BIPMed Variant Explorer
+  termsOfService: terms
+  contact:
+    name: Welliton de Souza
+    url: https://bipmed.org/
+    email: well309@gmail.com
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+host: bcbcloud.fcm.unicamp.br
+basePath: /brave
+schemes:
+- https
+paths:
+  /search:
+    post:
+      summary: Search for variants.
+      description: Given a list of queries return a list of variants that match the criterias.
+      operationId: search
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: input
+        required: false
+        schema:
+          $ref: '#/definitions/SearchInput'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/SearchOutput'
+  /variant:
+    post:
+      summary: Add variant.
+      description: Add genomic variant to database.
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: variant
+        required: false
+        schema:
+          $ref: '#/definitions/Variant'
+      responses:
+        201:
+          description: Variant added.
+      security:
+      - BasicAuth: []
+securityDefinitions:
+  BasicAuth:
+    type: basic
+definitions:
+  SearchInput:
+    type: object
+    properties:
+      draw:
+        type: integer
+      start:
+        type: integer
+      length:
+        type: integer
+      queries:
+        type: array
+        items:
+          $ref: '#/definitions/Query'
+  Query:
+    type: object
+    properties:
+      snpId:
+        type: string
+      assemblyId:
+        type: string
+      datasetId:
+        type: string
+      referenceName:
+        type: string
+      start:
+        type: integer
+        format: int64
+      end:
+        type: integer
+        format: int64
+      geneSymbol:
+        type: string
+  SearchOutput:
+    type: object
+    properties:
+      draw:
+        type: integer
+      recordsTotal:
+        type: integer
+      recordsFiltered:
+        type: integer
+      error:
+        type: object
+        properties: {}
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Variant'
+  Variant:
+    type: object
+    properties:
+      snpIds:
+        type: array
+        items:
+          type: string
+      datasetId:
+        type: string
+      assemblyId:
+        type: string
+      totalSamples:
+        type: integer
+      referenceName:
+        type: string
+      start:
+        type: integer
+        format: int64
+      referenceBases:
+        type: string
+      alternateBases:
+        type: array
+        items:
+          type: string
+      geneSymbol:
+        type: array
+        items:
+          type: string
+      alleleFrequency:
+        type: array
+        items:
+          type: number
+      sampleCount:
+        type: integer
+        format: int64
+      coverage:
+        $ref: '#/definitions/Statistics'
+      genotypeQuality:
+        $ref: '#/definitions/Statistics'
+      clnsig:
+        type: string
+      hgvs:
+        type: array
+        items:
+          type: string
+      type:
+        type: array
+        items:
+          type: string
+  Statistics:
+    type: object
+    properties:
+      min:
+        type: integer
+      q25:
+        type: number
+      median:
+        type: number
+      q75:
+        type: number
+      max:
+        type: integer
+      mean:
+        type: number
