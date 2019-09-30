@@ -73,11 +73,15 @@ func IterateOver(r io.Reader, datasetID, assemblyID string, importFunc func(v *v
 
 // GetAttributeAsString gets an INFO field and return as string
 func GetAttributeAsString(v *vcfgo.Variant, key string, defaultValue string) string {
-	i, err := v.Info_.Get(key)
-	if err != nil {
+	i, _ := v.Info_.Get(key)
+	switch s := i.(type) {
+	case string:
+		return s
+	case []string:
+		return strings.Join(s, ",")
+	default:
 		return defaultValue
 	}
-	return i.(string)
 }
 
 // GetAnnotationColumn gets an ANN column by its index
