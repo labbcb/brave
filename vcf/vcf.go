@@ -3,6 +3,7 @@ package vcf
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 
 	"github.com/brentp/vcfgo"
@@ -166,6 +167,9 @@ func CalculateDistribution(xs []int) *variant.Distribution {
 			Mean:   float64(x),
 		}
 	}
+
+	// sort values
+	sort.Ints(xs)
 
 	// calculate median
 	half := length / 2
