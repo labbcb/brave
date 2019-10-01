@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 
@@ -28,6 +29,6 @@ var serverCmd = &cobra.Command{
 		}
 
 		s := server.New(db, username, password)
-		log.Fatal(http.ListenAndServe(address, s.Router))
+		log.Fatal(http.ListenAndServe(address, cors.Default().Handler(s.Router)))
 	},
 }
