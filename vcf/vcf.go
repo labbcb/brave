@@ -86,8 +86,8 @@ func GetAttributeAsString(v *vcfgo.Variant, key string, defaultValue string) str
 
 // GetAnnotationColumn gets an ANN column by its index
 func GetAnnotationColumn(v *vcfgo.Variant, index int) []string {
-	i, err := v.Info_.Get(ANN)
-	if err != nil {
+	i, _ := v.Info_.Get(ANN)
+	if i == nil {
 		return nil
 	}
 
