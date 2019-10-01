@@ -19,7 +19,7 @@ type Variant struct {
 	SampleCount     int           `json:"sampleCount" bson:"sampleCount"`                   // total samples that have this variant (NS)
 	Coverage        *Distribution `json:"coverage,omitempty"`                               // distribution of coverage (DP)
 	GenotypeQuality *Distribution `json:"genotypeQuality,omitempty" bson:"genotypeQuality"` //distribution of genotype quality (GQ)
-	CLNSIG          string        `json:"clnsig"`                                           // clinical significance
+	CLNSIG          string        `json:"clnsig,omitempty"`                                 // clinical significance
 	HGVS            []string      `json:"hgvs,omitempty"`                                   // HGVS nomenclature
 	Type            []string      `json:"type,omitempty"`                                   // variant type
 }
