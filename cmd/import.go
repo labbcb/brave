@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"github.com/labbcb/brave/client"
 	"github.com/labbcb/brave/variant"
+	"github.com/spf13/viper"
 	"io"
 	"log"
 	"os"
@@ -14,11 +15,21 @@ import (
 )
 
 func init() {
-	importCmd.Flags().StringVar(&host, "host", "http://localhost:8080", "URL to BraVE server.")
-	importCmd.Flags().StringVar(&datasetID, "dataset", "bipmed", "Dataset name")
-	importCmd.Flags().StringVar(&assemblyID, "reference", "GRCh38", "Genome version")
-	importCmd.Flags().StringVar(&username, "username", "admin", "User name.")
-	importCmd.Flags().StringVar(&password, "password", "", "Password.")
+	importCmd.Flags().String("host", "http://localhost:8080", "URL to BraVE server.")
+	viper.BindPFlag("host", importCmd.Flags().Lookup("host"))
+
+	importCmd.Flags().String("dataset", "", "Dataset name.")
+	importCmd.MarkFlagRequired("dataset")
+
+	importCmd.Flags().String("assembly", "", "Genome version.")
+	importCmd.MarkFlagRequired("assembly")
+
+	importCmd.Flags().String("username", "admin", "User name.")
+	viper.BindPFlag("username", importCmd.Flags().Lookup("username"))
+
+	importCmd.Flags().String("password", "", "Password.")
+	viper.BindPFlag("password", importCmd.Flags().Lookup("password"))
+
 	rootCmd.AddCommand(importCmd)
 }
 
@@ -75,10 +86,12 @@ func importVcf(file string) error {
 	}
 
 	c := &client.Client{
-		Host:     host,
-		Username: username,
-		Password: password,
+		Host:     viper.GetString("host"),
+		Username: viper.GetString("username"),
+		Password: viper.GetString("password"),
 	}
+	datasetID := viper.GetString("dataset")
+	assemblyID := viper.GetString("assembly")
 	return vcf.IterateOver(r, datasetID, assemblyID, func(v *variant.Variant) error {
 		return c.InsertVariant(v)
 	})

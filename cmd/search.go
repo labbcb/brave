@@ -5,13 +5,18 @@ import (
 	"github.com/labbcb/brave/client"
 	"github.com/labbcb/brave/search"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"log"
 )
 
 func init() {
-	searchCmd.Flags().StringVar(&host, "host", "http://localhost:8080", "URL to BraVE server.")
-	searchCmd.Flags().StringVar(&datasetID, "dataset", "bipmed", "Dataset name")
-	searchCmd.Flags().StringVar(&assemblyID, "reference", "GRCh38", "Genome version")
+	searchCmd.Flags().String("host", "http://localhost:8080", "URL to BraVE server.")
+	viper.BindPFlag("host", searchCmd.Flags().Lookup("host"))
+
+	searchCmd.Flags().String("dataset", "", "Dataset name.")
+
+	searchCmd.Flags().String("reference", "", "Genome version.")
+
 	rootCmd.AddCommand(searchCmd)
 }
 
@@ -27,16 +32,12 @@ var searchCmd = &cobra.Command{
 		var qs []*search.Query
 		for _, text := range args {
 			q := search.Parse(text)
-			q.DatasetID = datasetID
-			q.AssemblyID = assemblyID
+			q.DatasetID = viper.GetString("dataset")
+			q.AssemblyID = viper.GetString("assembly")
 			qs = append(qs, q)
 		}
 
-		c := &client.Client{
-			Host:     host,
-			Username: username,
-			Password: password,
-		}
+		c := &client.Client{Host: viper.GetString("host")}
 		resp, err := c.SearchVariants(&search.Input{Queries: qs})
 		if err != nil {
 			log.Fatal(err)

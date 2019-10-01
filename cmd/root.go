@@ -5,13 +5,17 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
-
-var datasetID, assemblyID, database, host, address, username, password string
 
 var rootCmd = &cobra.Command{
 	Use:   "brave",
 	Short: "BraVE - BIPMed Variant Explorer",
+}
+
+func init() {
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("brave")
 }
 
 // Execute starts command line parser.
