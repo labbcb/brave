@@ -5,23 +5,23 @@ import "fmt"
 // Variant is a genomic variant that was annotated, sample data removed and calculated distribution.
 // Variants types supported by VCF are: Integer (32-bit, signed), Float (32-bit, IEEE-754).
 type Variant struct {
-	ID              string        `json:"id" bson:"_id"`                          // variant id
-	DatasetID       string        `json:"datasetId" bson:"datasetId"`             // dataset ID
-	TotalSamples    int32         `json:"totalSamples" bson:"totalSamples"`       // total samples in dataset
-	AssemblyID      string        `json:"assemblyId" bson:"assemblyId"`           // reference genome version (b37, hg38)
-	SnpIds          []string      `json:"snpIds" bson:"snpIds"`                   // ids (ID)
-	ReferenceName   string        `json:"referenceName" bson:"referenceName"`     // contig name (CHROM)
-	Start           int32         `json:"start"`                                  // 0-based position (POS)
-	ReferenceBases  string        `json:"referenceBases" bson:"referenceBases"`   // reference bases (REF)
-	AlternateBases  []string      `json:"alternateBases" bson:"alternateBases"`   // list of alternate bases (ALT)
-	GeneSymbol      []string      `json:"geneSymbol" bson:"geneSymbol"`           // gene symbol, one per ALT
-	AlleleFrequency []float32     `json:"alleleFrequency" bson:"alleleFrequency"` // allele frequency (AF), one per ALT
-	SampleCount     int           `json:"sampleCount" bson:"sampleCount"`         // total samples that have this variant (NS)
-	Coverage        *Distribution `json:"coverage"`                               // distribution of coverage (DP)
-	GenotypeQuality *Distribution `json:"genotypeQuality" bson:"genotypeQuality"` //distribution of genotype quality (GQ)
-	CLNSIG          string        `json:"clnsig"`                                 // clinical significance
-	HGVS            []string      `json:"hgvs"`                                   // HGVS nomenclature
-	Type            []string      `json:"type"`                                   // variant type
+	ID              string        `json:"id" bson:"_id"`                                    // variant id
+	DatasetID       string        `json:"datasetId" bson:"datasetId"`                       // dataset ID
+	TotalSamples    int32         `json:"totalSamples" bson:"totalSamples"`                 // total samples in dataset
+	AssemblyID      string        `json:"assemblyId" bson:"assemblyId"`                     // reference genome version (b37, hg38)
+	SnpIds          []string      `json:"snpIds,omitempty" bson:"snpIds"`                   // ids (ID)
+	ReferenceName   string        `json:"referenceName" bson:"referenceName"`               // contig name (CHROM)
+	Start           int32         `json:"start"`                                            // 0-based position (POS)
+	ReferenceBases  string        `json:"referenceBases,omitempty" bson:"referenceBases"`   // reference bases (REF)
+	AlternateBases  []string      `json:"alternateBases,omitempty" bson:"alternateBases"`   // list of alternate bases (ALT)
+	GeneSymbol      []string      `json:"geneSymbol,omitempty" bson:"geneSymbol"`           // gene symbol, one per ALT
+	AlleleFrequency []float32     `json:"alleleFrequency,omitempty" bson:"alleleFrequency"` // allele frequency (AF), one per ALT
+	SampleCount     int           `json:"sampleCount" bson:"sampleCount"`                   // total samples that have this variant (NS)
+	Coverage        *Distribution `json:"coverage,omitempty"`                               // distribution of coverage (DP)
+	GenotypeQuality *Distribution `json:"genotypeQuality,omitempty" bson:"genotypeQuality"` //distribution of genotype quality (GQ)
+	CLNSIG          string        `json:"clnsig"`                                           // clinical significance
+	HGVS            []string      `json:"hgvs,omitempty"`                                   // HGVS nomenclature
+	Type            []string      `json:"type,omitempty"`                                   // variant type
 }
 
 // Distribution represents distribution of a list of values.

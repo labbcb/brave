@@ -34,9 +34,6 @@ func (db *DB) Save(v *variant.Variant) error {
 
 // Search is the main method to search for variants.
 func (db *DB) Search(i *search.Input) (*search.Response, error) {
-	var total int
-	var filtered int
-
 	var filters bson.A
 	for _, q := range i.Queries {
 		var fq bson.A
@@ -80,6 +77,16 @@ func (db *DB) Search(i *search.Input) (*search.Response, error) {
 
 	var variants []*variant.Variant
 	if err := cur.All(nil, &variants); err != nil {
+		return nil, err
+	}
+
+	total, err := db.client.Database(db.database).Collection("variants").CountDocuments(nil, bson.D{})
+	if err != nil {
+		return nil, err
+	}
+
+	filtered, err := db.client.Database(db.database).Collection("variants").CountDocuments(nil, filter)
+	if err != nil {
 		return nil, err
 	}
 

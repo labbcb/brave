@@ -7,8 +7,8 @@ import (
 // Response is the response object
 type Response struct {
 	Draw            int                `json:"draw"`            // the draw counter that this object is a response to
-	RecordsTotal    int                `json:"recordsTotal"`    // total records, before filtering
-	RecordsFiltered int                `json:"recordsFiltered"` // total records, after filtering
+	RecordsTotal    int64              `json:"recordsTotal"`    // total records, before filtering
+	RecordsFiltered int64              `json:"recordsFiltered"` // total records, after filtering
 	Error           string             `json:"error"`           // list of variants that matched one (or more) search query
 	Variants        []*variant.Variant `json:"data"`            // if an error occurs during the running of the server-side processing
 }
