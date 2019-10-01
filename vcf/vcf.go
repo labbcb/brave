@@ -93,7 +93,11 @@ func GetAnnotationColumn(v *vcfgo.Variant, index int) []string {
 
 	switch ann := i.(type) {
 	case string:
-		return []string{strings.Split(ann, "|")[index]}
+		var columns []string
+		for _, a := range strings.Split(ann, ",") {
+			columns = append(columns, strings.Split(a, "|")[index])
+		}
+		return columns
 	case []string:
 		var columns []string
 		for _, a := range ann {
