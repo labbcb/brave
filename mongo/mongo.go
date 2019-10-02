@@ -80,6 +80,10 @@ func (db *DB) Search(i *search.Input) (*search.Response, error) {
 		return nil, err
 	}
 
+	if variants == nil {
+		variants = []*variant.Variant{}
+	}
+
 	total, err := db.client.Database(db.database).Collection("variants").CountDocuments(nil, bson.D{})
 	if err != nil {
 		return nil, err
