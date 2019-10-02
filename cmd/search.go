@@ -1,19 +1,22 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/labbcb/brave/client"
 	"github.com/labbcb/brave/search"
 	"github.com/spf13/cobra"
 	"log"
+	"os"
 )
+
+var format string
 
 func init() {
 	searchCmd.Flags().StringVar(&host, "host", "http://localhost:8080", "URL to BraVE server.")
-
 	searchCmd.Flags().StringVar(&datasetID, "dataset", "", "Dataset name.")
-
 	searchCmd.Flags().StringVar(&assemblyID, "assembly", "", "Genome version.")
+	searchCmd.Flags().StringVar(&format, "format", "console", "Output format.")
 
 	rootCmd.AddCommand(searchCmd)
 }
@@ -41,8 +44,15 @@ var searchCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		for _, v := range resp.Variants {
-			fmt.Println(v)
+		switch format {
+		case "json":
+			if err := json.NewEncoder(os.Stdout).Encode(resp.Variants); err != nil {
+				log.Fatal(err)
+			}
+		default:
+			for _, v := range resp.Variants {
+				fmt.Println(v)
+			}
 		}
 	},
 }
