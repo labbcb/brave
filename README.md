@@ -25,3 +25,38 @@ Variant
 - `geneSymbol` - Gene symbol, can be `null`
 - `alleleFrequency` - Allele Frequency, required (AF)
 - `sampleCount` - Number of Samples With Data, required (NS)
+
+## Environment variables
+
+Server specific.
+
+- `BRAVE_DATABASE` URL to Mongo database. Default is `mongodb://localhost:27017`.
+- `BRAVE_ADDRESS` address to bind server. Default is `:8080`.
+- `BRAVE_USERNAME` administrator user name. Default is `admin`.
+- `BRAVE_PASSWORD` administrator password. Default is empty.
+
+
+## Deploy server with Docker
+
+Create network and volume.
+
+```bash
+docker volume create brave-data
+docker network create brave
+
+docker container run \
+    --network brave \
+    --rm --detach \
+    --name brave-db \
+    --volume brave-data:/data/db \
+    mongo:4
+
+docker container run \
+    --rm --detach \
+    --name brave \
+    --network brave \
+    --publish 8080:8080 \
+    --env BRAVE_DATABASE=mongodb://brave2-db:27017 \
+    --env BRAVE_PASSWORD=secret \
+    bipmed/brave server
+```

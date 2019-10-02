@@ -3,25 +3,23 @@ package cmd
 import (
 	"github.com/labbcb/brave/client"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"log"
 )
 
-func init() {
-	removeCmd.Flags().String("host", "http://localhost:8080", "URL to BraVE server.")
-	viper.BindPFlag("host", removeCmd.Flags().Lookup("host"))
+var host, datasetID, assemblyID, username, password string
 
-	removeCmd.Flags().String("dataset", "", "Dataset name.")
+func init() {
+	removeCmd.Flags().StringVar(&host, "host", "http://localhost:8080", "URL to BraVE server.")
+
+	removeCmd.Flags().StringVar(&datasetID, "dataset", "", "Dataset name.")
 	removeCmd.MarkFlagRequired("dataset")
 
-	removeCmd.Flags().String("assembly", "", "Genome version.")
+	removeCmd.Flags().StringVar(&assemblyID, "assembly", "", "Genome version.")
 	removeCmd.MarkFlagRequired("assembly")
 
-	removeCmd.Flags().String("username", "admin", "User name.")
-	viper.BindPFlag("username", removeCmd.Flags().Lookup("username"))
+	removeCmd.Flags().StringVar(&username, "username", "admin", "User name.")
 
-	removeCmd.Flags().String("password", "", "Password.")
-	viper.BindPFlag("password", removeCmd.Flags().Lookup("password"))
+	removeCmd.Flags().StringVar(&password, "password", "", "Password.")
 
 	rootCmd.AddCommand(removeCmd)
 }
@@ -34,13 +32,11 @@ var removeCmd = &cobra.Command{
 	If none of them are specified, which is default, remove all variants.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		c := &client.Client{
-			Host:     viper.GetString("host"),
-			Username: viper.GetString("username"),
-			Password: viper.GetString("password"),
+			Host:     host,
+			Username: username,
+			Password: password,
 		}
 
-		datasetID := viper.GetString("dataset")
-		assemblyID := viper.GetString("assembly")
 		if err := c.RemoveVariants(datasetID, assemblyID); err != nil {
 			log.Fatal(err)
 		}
