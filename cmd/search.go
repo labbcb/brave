@@ -1,13 +1,17 @@
 package cmd
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"github.com/labbcb/brave/client"
 	"github.com/labbcb/brave/search"
+	"github.com/labbcb/brave/variant"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 var format string
@@ -49,10 +53,75 @@ var searchCmd = &cobra.Command{
 			if err := json.NewEncoder(os.Stdout).Encode(resp.Variants); err != nil {
 				log.Fatal(err)
 			}
+		case "csv":
+			if len(resp.Variants) == 0 {
+				return
+			}
+
+			w := csv.NewWriter(os.Stdout)
+
+			h := []string{
+				"dataset",
+				"assembly",
+				"ns",
+				"total",
+				"chrom",
+				"pos",
+				"id",
+				"ref",
+				"alt",
+				"af",
+				"dp",
+				"gq",
+				"gene",
+			}
+			if err := w.Write(h); err != nil {
+				log.Fatal(err)
+			}
+
+			for _, v := range resp.Variants {
+				s := []string{
+					v.DatasetID,
+					v.AssemblyID,
+					strconv.Itoa(v.SampleCount),
+					strconv.Itoa(int(v.TotalSamples)),
+					v.ReferenceName,
+					strconv.Itoa(int(v.Start)),
+					strings.Join(v.SnpIds, ";"),
+					v.ReferenceBases,
+					strings.Join(v.AlternateBases, ";"),
+					joinFloats(v.AlleleFrequency, ";"),
+					joinDistribution(v.Coverage),
+					joinDistribution(v.GenotypeQuality),
+					strings.Join(v.GeneSymbol, ";"),
+				}
+				if err := w.Write(s); err != nil {
+					log.Fatal(err)
+				}
+			}
+			w.Flush()
 		default:
 			for _, v := range resp.Variants {
 				fmt.Println(v)
 			}
 		}
 	},
+}
+
+func joinFloats(fs []float32, sep string) string {
+	var a []string
+	for _, f := range fs {
+		a = append(a, fmt.Sprintf("%f", f))
+	}
+	return strings.Join(a, sep)
+}
+
+func joinDistribution(d *variant.Distribution) string {
+	return fmt.Sprintf("%f;%f;%f;%f;%f;%f",
+		d.Min,
+		d.Q25,
+		d.Median,
+		d.Q75,
+		d.Max,
+		d.Mean)
 }
