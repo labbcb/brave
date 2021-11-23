@@ -3,15 +3,19 @@ package cmd
 import (
 	"bufio"
 	"compress/gzip"
-	"github.com/labbcb/brave/client"
-	"github.com/labbcb/brave/variant"
+	"fmt"
 	"io"
 	"log"
 	"os"
 
+	"github.com/labbcb/brave/client"
+	"github.com/labbcb/brave/variant"
+
 	"github.com/labbcb/brave/vcf"
 	"github.com/spf13/cobra"
 )
+
+var dontFilter, dryRun bool
 
 func init() {
 	importCmd.Flags().StringVar(&host, "host", "http://localhost:8080", "URL to BraVE server.")
@@ -25,6 +29,9 @@ func init() {
 	importCmd.Flags().StringVar(&username, "username", "admin", "User name.")
 
 	importCmd.Flags().StringVar(&password, "password", "", "Password.")
+
+	importCmd.Flags().BoolVar(&dontFilter, "dont-filter", false, "Don't filter variants by FILTER column.")
+	importCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Just check VCF without connecting to server.")
 
 	rootCmd.AddCommand(importCmd)
 }
@@ -87,7 +94,21 @@ func importVcf(file string) error {
 		Password: password,
 	}
 
-	return vcf.IterateOver(r, datasetID, assemblyID, func(v *variant.Variant) error {
+	importVariant := func(v *variant.Variant) error {
 		return c.InsertVariant(v)
-	})
+	}
+
+	if dryRun {
+		importVariant = func(v *variant.Variant) error { return nil }
+	}
+
+	doFilter := !dontFilter
+	summary, err := vcf.IterateOver(r, doFilter, datasetID, assemblyID, importVariant)
+
+	fmt.Println("Total variants:", summary.TotalVariants)
+	if doFilter {
+		fmt.Println("Passed variants:", summary.PassedVariants)
+	}
+
+	return err
 }

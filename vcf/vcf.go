@@ -31,11 +31,18 @@ const (
 	HGVS = 9
 )
 
-// IterateOver reads a VCF file (from io.Reader) and saves Variant to database (db.Variants).
-func IterateOver(r io.Reader, datasetID, assemblyID string, importFunc func(v *variant.Variant) error) error {
+type VCFSummary struct {
+	TotalVariants  uint
+	PassedVariants uint
+}
+
+// IterateOver reads a VCF file (from io.Reader) and yeld varint to caller's function.
+// It returns VCFSummary with total of variants read and total of variants that passed all filters (FILTER = PASS or .).
+// If err is not nil, VCFSummary will have the total variants so far.
+func IterateOver(r io.Reader, doFilter bool, datasetID, assemblyID string, doSomething func(v *variant.Variant) error) (VCFSummary, error) {
 	vcfReader, err := vcfgo.NewReader(r, false)
 	if err != nil {
-		return err
+		return VCFSummary{}, err
 	}
 	totalSamples := len(vcfReader.Header.SampleNames)
 
@@ -60,16 +67,27 @@ func IterateOver(r io.Reader, datasetID, assemblyID string, importFunc func(v *v
 		}
 	}
 
+	var totalVariants, passedVariants uint
+
 	for {
 		v := vcfReader.Read()
 		if v == nil {
 			break
 		}
-		if err := importFunc(buildVariant(v)); err != nil {
-			return err
+
+		totalVariants += 1
+
+		if doFilter && v.Filter != "PASS" && v.Filter != "." {
+			continue
 		}
+
+		if err := doSomething(buildVariant(v)); err != nil {
+			return VCFSummary{totalVariants, passedVariants}, err
+		}
+
+		passedVariants += 1
 	}
-	return vcfReader.Error()
+	return VCFSummary{totalVariants, passedVariants}, vcfReader.Error()
 }
 
 func getSnpIds(v *vcfgo.Variant) []string {

@@ -60,3 +60,19 @@ docker container run \
     --env BRAVE_PASSWORD=secret \
     bipmed/brave server
 ```
+
+## Import variants
+
+BraVE accepts VCF files (v4.2) as input and submit variants to server instance. No genotype (FORMAT column) data is sent to server. FORMAT/DP and FORMAT/GQ are used to calculate distribution (min, q25, median, q75, max and average) of every variant. By default only variant that passed all filters are imported to database (FILTER = PASS or .). Use `--dont-filter` option to import all variants, regardless of FILTER column.
+
+```bash
+brave import \
+    [--dont-filter] \
+    [--dry-run] \
+    [--host http://localhost:8080] \
+    [--username admin] \
+    --password secret \
+    --assembly hg38 \
+    --dataset bipmed \
+    bipmed.hg38.vcf.gz
+```
