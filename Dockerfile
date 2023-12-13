@@ -1,4 +1,4 @@
-FROM golang:1.18 AS builder
+FROM golang:1.21 AS builder
 WORKDIR /go/src/github.com/labbcb/brave
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o brave .
